@@ -1,12 +1,22 @@
 # Paranda
 
-Paranda is a video summarizer. Just add your video URL and it would summarize the video for you.
+Paranda is a video summarizer generator. Just add your video URL and it would summarize the video for you.
 
 ## Features
 
 * User should be able to get a video transcript by passing a video URL
 * User should be able to review the progress
 * User should be able to get the event history
+
+### Design
+
+Paranda focuses on three events right now:
+
+* Audio Request | This event is triggered when a user requests a video audio
+* Audio Request Complete | This event is triggered when the audio is ready
+* Audio Request Failed | This event is triggered when the audio request fails
+
+![Alt text](./docs/design.png)
 
 ### APIs
 
