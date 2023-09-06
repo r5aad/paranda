@@ -11,7 +11,7 @@ import {
   EventTypes,
 } from 'src/events/types/events.types';
 import { VideoDocument, VideoEntity } from 'src/schemas/video.schema';
-import { VideoEntityDto } from './dto/video-entity.dto';
+import { AudioRequestStatus, VideoEntityDto } from './dto/video-entity.dto';
 
 @Injectable()
 export class VideoService {
@@ -40,28 +40,37 @@ export class VideoService {
   async applyAudioRequest(event: AudioRequest): Promise<void> {
     await this.create({
       jobId: event.data.jobId,
-      status: 'REQUESTED',
+      status: AudioRequestStatus.REQUESTED,
       url: event.data.url,
-      path: null,
     });
   }
 
   async applyAudioFailure(event: AudioFailure): Promise<void> {
-    await this.create({
+    const update: VideoEntityDto = {
       jobId: event.data.jobId,
-      status: 'FAILURE',
-      url: event.data.url,
-      path: null,
-    });
+      status: AudioRequestStatus.FAILED,
+      path: event.data.path,
+    };
+    await this.update(update);
   }
 
+  async update(update: VideoEntityDto) {
+    if (!update.jobId) {
+      throw new Error('Missing jobId');
+    }
+    const filter = { jobId: update.jobId };
+    await this.videoModel.findOneAndUpdate(filter, update);
+  }
+
+  /**
+   * Get existing audio, and then change the status
+   */
   async applyAudioComplete(event: AudioCompleted): Promise<void> {
-    await this.create({
+    const update: VideoEntityDto = {
       jobId: event.data.jobId,
-      status: 'COMPLETE',
-      url: event.data.url,
-      path: event.data.path,
-    });
+      status: AudioRequestStatus.COMPLETED,
+    };
+    await this.update(update);
   }
 
   async apply(baseEvent: BaseEvent): Promise<void> {

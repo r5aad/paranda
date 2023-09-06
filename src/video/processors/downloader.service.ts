@@ -39,8 +39,8 @@ export class Downloader implements EventProcessor {
             jobId: requestData.jobId,
           });
           this.eventBus.submit(audioCompleted);
-          resolve('Completed audio processing');
           this.videoService.apply(audioCompleted);
+          resolve('Completed audio processing');
         });
 
         download.on('error', (err) => {
