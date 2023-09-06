@@ -27,9 +27,14 @@ export class VideoService {
     return createdJob.save();
   }
 
-  async findAll(): Promise<VideoDocument[]> {
+  async findAll(limit: number, skip: number): Promise<VideoDocument[]> {
     this.logger.log(`find all events`);
-    return this.videoModel.find().sort({ timestamp: -1 }).exec();
+    return this.videoModel
+      .find()
+      .limit(limit)
+      .skip(skip)
+      .sort({ timestamp: -1 })
+      .exec();
   }
 
   async findOne(id: string): Promise<VideoDocument | null> {

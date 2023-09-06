@@ -2,6 +2,7 @@ import { Job } from 'bull';
 
 import { OnQueueEvent, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
+import { EventService } from 'src/events/event.service';
 import {
   AudioRequest,
   BaseEvent,
@@ -15,6 +16,7 @@ export class EventRouter {
   constructor(
     private downloader: Downloader,
     private notifier: Notifier,
+    private eventService: EventService,
   ) {}
 
   private logger = new Logger(EventRouter.name);
@@ -31,8 +33,10 @@ export class EventRouter {
         job.id
       } from the queue with data ${JSON.stringify(job.data)}`,
     );
+
     try {
       const videoEvent: BaseEvent = job.data;
+      await this.eventService.create(videoEvent);
       if (videoEvent.type === EventTypes.AUDIO_REQUESTED) {
         const audioRequest: AudioRequest = videoEvent as AudioRequest;
         this.downloader.process(audioRequest).catch((e) => {

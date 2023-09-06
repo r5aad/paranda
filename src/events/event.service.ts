@@ -20,9 +20,14 @@ export class EventService {
     return createdJob.save();
   }
 
-  async findAll(): Promise<EventDocument[]> {
+  async findAll(limit: number, offset: number): Promise<EventDocument[]> {
     this.logger.log(`find all events`);
-    return this.eventModel.find().sort({ timestamp: -1 }).exec();
+    return this.eventModel
+      .find()
+      .limit(limit)
+      .skip(offset)
+      .sort({ timestamp: -1 })
+      .exec();
   }
 
   async findOne(id: string): Promise<EventDocument | null> {

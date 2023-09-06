@@ -7,6 +7,7 @@ import {
   Logger,
   Param,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { AudioRequest } from 'src/events/types/events.types';
@@ -47,8 +48,11 @@ export class VideoController {
   private logger = new Logger(VideoController.name);
 
   @Get('/events')
-  async getAll(): Promise<Store.EventDocument[]> {
-    return this.eventService.findAll();
+  async getAll(
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ): Promise<Store.EventDocument[]> {
+    return this.eventService.findAll(limit, offset);
   }
 
   @Get('/videos/:id')
@@ -59,6 +63,14 @@ export class VideoController {
       throw new NotFound(`Video ${id} not found`);
     }
     return video;
+  }
+
+  @Get('/videos')
+  async getVideos(
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ): Promise<VideoDocument[]> {
+    return await this.videoService.findAll(limit, offset);
   }
 
   @Post('/videos')
@@ -77,14 +89,14 @@ export class VideoController {
         user: jobRequest.user,
         jobId: id,
       });
+      const result = await this.videoJobHandler.submit(audioRequestEvent);
+      const jobResponse = { id: id, message: result };
       this.videoService.apply(audioRequestEvent);
-      await this.videoJobHandler.submit(audioRequestEvent);
-      const jobResponse = { id: id };
       return jobResponse;
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerError(
-        `Error handling the request, please try again. ${e.message}`,
+        `Unable to accept request at this time. ${e.message}`,
       );
     }
   }

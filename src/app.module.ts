@@ -21,14 +21,20 @@ import { VideoService } from './video/video.service';
       { name: EventEntity.name, schema: EventEntitySchema },
       { name: VideoEntity.name, schema: VideoEntitySchema },
     ]),
-    MongooseModule.forRoot('mongodb://user:password@localhost:27017'),
     ConfigModule.forRoot({
       load: [configuration],
     }),
+    MongooseModule.forRoot(process.env.MONGO_URL),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
-        port: 6379,
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT as unknown as number,
+        username: process.env.REDIS_USERNAME,
+        password: process.env.REDIS_PASSWORD,
+        tls: {
+          rejectUnauthorized: false,
+          requestCert: true,
+        },
       },
     }),
     BullModule.registerQueue({

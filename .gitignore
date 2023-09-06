@@ -28,6 +28,7 @@ lerna-debug.log*
 *.sublime-workspace
 
 audios/*
+.env
 
 # IDE - VSCode
 .vscode/*
